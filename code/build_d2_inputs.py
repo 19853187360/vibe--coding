@@ -8,11 +8,14 @@ import openpyxl
 import pandas as pd
 
 # ---------- sample_a ----------
+DROP = {"000892"}   # 欢瑞世纪: 2013-2015年仍是借壳前壳公司(总资产<600万), 报表无分析意义, 剔除
 wb = openpyxl.load_workbook("data/tables/group_a_v0.xlsx")
 ws = wb["group_a_v0"]
 rows = []
 for r in ws.iter_rows(min_row=2, values_only=True):
     if r[8] == "已核证(检索)" and r[5]:
+        if str(r[1]).zfill(6) in DROP:
+            continue
         rows.append(dict(code=str(r[1]).zfill(6), company=r[0], industry_l1=r[2],
                          year_t=int(str(r[5])[:4]), fraud=1,
                          penalty_date=r[3], fraud_years=r[4], method=r[6], source_url=r[7]))

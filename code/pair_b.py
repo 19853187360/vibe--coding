@@ -12,7 +12,7 @@ def mkt(code):
 
 a = pd.read_csv("data/tables/sample_a.csv")
 pool = pd.read_csv("data/tables/candidate_pool.csv")
-pool = pool[~pool.code.isin(a.code)].drop_duplicates("code")
+pool = pool[~pool.code.isin(a.code)].drop_duplicates(["code", "year"])   # 每个公司-年度一行
 
 def get_ta(code, year):                    # 拉一次balance取year年报总资产
     f = f"data/raw/{str(code).zfill(6)}_balance.csv"
@@ -34,18 +34,26 @@ pool["total_assets"] = [get_ta(c, y) for c, y in zip(pool.code, pool.year)]
 
 rows = []
 for _, ra in a.dropna(subset=["total_assets"]).iterrows():
-    cand = pool.dropna(subset=["total_assets"])
-    cand = cand[(cand.industry_l1 == ra.industry_l1) & (cand.year == ra.year_t)
-                & (cand.total_assets / ra.total_assets).between(0.7, 1.3)]
-    if len(cand) < 2:   # 不足2家 → 放宽±50%
-        cand = pool.dropna(subset=["total_assets"])
-        cand = cand[(cand.industry_l1 == ra.industry_l1) & (cand.year == ra.year_t)
-                    & (cand.total_assets / ra.total_assets).between(0.5, 2.0)]
-        print(f"提示: {ra.company} 已放宽到±50%")
+    base = pool.dropna(subset=["total_assets"])
+    base = base[(base.industry_l1 == ra.industry_l1) & (base.year == ra.year_t)]
+    mode = "strict"
+    cand = base[(base.total_assets / ra.total_assets).between(0.7, 1.3)]
+    if len(cand) < 2:
+        mode = "widen50"
+        cand = base[(base.total_assets / ra.total_assets).between(0.5, 2.0)]
+        print(f"提示: {ra.company} {ra.year_t} 已放宽到±50%")
+    if len(cand) < 2:   # 仍不足 → 取同行业同年度规模最接近的2家(记录放宽, 论文数据节注明)
+        mode = "nearest"
+        cand = base.copy()
+        cand["_gap"] = (cand.total_assets / ra.total_assets - 1).abs()
+        cand = cand.nsmallest(2, "_gap")
+        print(f"提示: {ra.company} {ra.year_t} 规模过小/过大, 已放宽为最近规模配对")
     for _, rb in cand.sort_values("total_assets").head(2).iterrows():
         rows.append(dict(code=rb.code, company=rb.company, industry_l1=rb.industry_l1,
-                         year_t=int(ra.year_t), fraud=0, matched_to=ra.code))
+                         year_t=int(ra.year_t), fraud=0, matched_to=ra.code, pair_mode=mode))
 b = pd.DataFrame(rows)
+if "pair_mode" not in a.columns:
+    a["pair_mode"] = "A"
 allrows = pd.concat([a.assign(fraud=1, matched_to=a.code), b], ignore_index=True)
 allrows["year_t"] = allrows["year_t"].astype(int)
 allrows.to_csv("data/tables/sample_all.csv", index=False, encoding="utf-8-sig")
