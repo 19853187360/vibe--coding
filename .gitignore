@@ -1,0 +1,4 @@
+pdfs/
+data/raw/
+__pycache__/
+*.pdf
