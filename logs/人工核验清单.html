@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>A组名单人工核验清单</title>
+<style>
+body { font-family: "Microsoft YaHei", sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; color: #222; }
+h1 { font-size: 22px; } .tip { background: #FFF9E6; border: 1px solid #E6C87A; padding: 12px; border-radius: 8px; margin: 12px 0; }
+table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+th, td { border: 1px solid #ccc; padding: 6px 8px; font-size: 14px; text-align: left; vertical-align: top; }
+th { background: #f0f4f8; }
+input[type=checkbox] { width: 18px; height: 18px; }
+.checked { color: #2e7d32; font-weight: bold; }
+.savebtn { position: fixed; bottom: 20px; right: 20px; background: #1976d2; color: #fff; border: none; padding: 12px 20px; font-size: 15px; border-radius: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>A 组名单人工核验清单（30 家）</h1>
+<div class="tip">
+<b>怎么用（每行只需 30 秒）：</b><br>
+1. 点击第 4 列的链接，浏览器会打开证监会（或证监局）的处罚决定书原文网页；<br>
+2. 确认网页标题里有这家公司的名字 → 勾选最后一列的"已核对"；<br>
+3. 链接打不开的（老链接可能失效），在百度/必应搜索第 3 列的"文号"，找到 csrc.gov.cn 的原文再核对；<br>
+4. 全部勾完后点右下角"保存"按钮（存在浏览器里）。<br>
+<b>这是比赛红线要求的人工核验，做完这步 A 组就正式定稿。</b>
+</div>
+<table id="tbl">
+<tr><th>#</th><th>公司（代码）</th><th>处罚文号</th><th>处罚决定书链接（点击核对）</th><th>造假年度</th><th>已核对 ✓</th></tr>
+</table>
+<button class="savebtn" onclick="save()">保存勾选状态</button>
+<script>
+const DATA = [
+ ["康美药业 (600518)","〔2020〕24号","https://www.csrc.gov.cn/csrc/c101928/c1042341/content.shtml","2016-2018"],
+ ["康得新 (002450)","2020-09处罚(文号待查)","https://www.csrc.gov.cn/csrc/c100028/cb90fac223f6349daa849c2c5d7af88f4/content.shtml","2015-2018"],
+ ["獐子岛 (002069)","〔2020〕29号","搜索: 证监会 行政处罚决定书 2020 29号 獐子岛","2016-2017"],
+ ["宜华生活 (600978)","〔2021〕81号","搜索: 证监会 行政处罚决定书 2021 81号 宜华生活","2016-2019"],
+ ["广州浪奇 (000523)","广东证监局〔2021〕21号","搜索: 广东证监局 行政处罚决定书 2021 21号 浪奇","2018-2019"],
+ ["同济堂 (600090)","〔2022〕17号","搜索: 证监会 行政处罚决定书 2022 17号 同济堂","2016-2019"],
+ ["豫金刚石 (300064)","〔2022〕57号","搜索: 证监会 行政处罚决定书 2022 57号 豫金刚石","2016-2019"],
+ ["金正大 (002470)","〔2022〕1号","搜索: 证监会 行政处罚决定书 2022 1号 金正大","2015-2018"],
+ ["胜利精密 (002426)","〔2022〕48号","搜索: 证监会 行政处罚决定书 2022 48号 胜利精密","2016-2018"],
+ ["*ST新亿 (600145)","〔2022〕4号","搜索: 证监会 行政处罚决定书 2022 4号 新亿","2018-2019"],
+ ["泽达易盛 (688555)","〔2023〕29号","https://www.csrc.gov.cn/csrc/c101928/c7404368/content.shtml","2016-2021"],
+ ["*ST紫晶 (688086)","2023-04处罚(文号待查)","搜索: 证监会 行政处罚决定书 紫晶存储 2023","2017-2020"],
+ ["西陇科学 (002584)","广东证监局2023","搜索: 广东证监局 行政处罚决定书 西陇科学","2020-2022"],
+ ["金通灵 (300091)","江苏证监局2023","搜索: 江苏证监局 行政处罚决定书 金通灵","2017-2022"],
+ ["冠农股份 (600251)","2023处罚(文号待查)","搜索: 证监会 行政处罚决定书 冠农股份","2021-2022"],
+ ["*ST博天 (603603)","2023-12处罚(文号待查)","搜索: 证监会 行政处罚决定书 博天环境","2017-2021"],
+ ["华仪电气 (600290)","浙江证监局〔2023〕45号","http://www.csrc.gov.cn/zhejiang/c103950/c7454529/content.shtml","2017-2022"],
+ ["东方金钰 (600086)","〔2020〕62号","搜索: 证监会 行政处罚决定书 2020 62号 东方金钰","2016-2018"],
+ ["索菱股份 (002766)","〔2020〕105号","https://www.csrc.gov.cn/csrc/c101928/c1416721/content.shtml","2016-2018"],
+ ["新纶科技 (002341)","〔2020〕21号","https://www.csrc.gov.cn/csrc/c101928/c1042343/content.shtml","2016-2018"],
+ ["抚顺特钢 (600399)","〔2019〕147号","https://www.csrc.gov.cn/csrc/c101928/c1042362/content.shtml","2010-2017"],
+ ["延安必康 (002411)","陕西证监局〔2020〕5号","https://www.csrc.gov.cn/shaanxi/c104634/c1606408/content.shtml","2015-2018"],
+ ["千山药机 (300216)","〔2020〕32号","https://www.csrc.gov.cn/csrc/c101928/c1042327/content.shtml","2015-2016"],
+ ["欢瑞世纪 (000892)","重庆证监局〔2019〕3/4/5号","搜索: 重庆证监局 行政处罚决定书 2019 欢瑞世纪","2013-2016"],
+ ["广东榕泰 (600589)","广东证监局〔2021〕8号","搜索: 广东证监局 行政处罚决定书 2021 8号 广东榕泰","2018-2019"],
+ ["同洲电子 (002052)","深圳证监局〔2021〕2号","搜索: 深圳证监局 行政处罚决定书 2021 2号 同洲电子","2014-2016"],
+ ["宁波东力 (002164)","〔2021〕2号(待核)","搜索: 证监会 行政处罚决定书 宁波东力 年富","2016-2018"],
+ ["龙力生物 (002604)","2021处罚(文号待查)","搜索: 山东证监局 行政处罚决定书 龙力生物","2015-2017"],
+ ["亚太药业 (002370)","2021-02处罚(文号待查)","搜索: 浙江证监局 行政处罚决定书 亚太药业","2016-2018"],
+ ["盈方微 (000670)","〔2019〕114号","搜索: 证监会 行政处罚决定书 2019 114号 盈方微","2015"],
+];
+const tbody = document.getElementById("tbl");
+for (let i = 0; i < DATA.length; i++) {
+  const [co, wh, link, yrs] = DATA[i];
+  const tr = document.createElement("tr");
+  const isUrl = link.startsWith("http");
+  tr.innerHTML = "<td>" + (i+1) + "</td><td>" + co + "</td><td>" + wh + "</td><td>" +
+    (isUrl ? '<a href="' + link + '" target="_blank">点此打开原文</a>' : link) +
+    "</td><td>" + yrs + "</td><td><input type='checkbox' id='cb" + i + "'></td>";
+  tbody.appendChild(tr);
+}
+const saved = JSON.parse(localStorage.getItem("heyan") || "{}");
+for (let i = 0; i < DATA.length; i++) {
+  document.getElementById("cb" + i).checked = !!saved[i];
+}
+function save() {
+  const st = {};
+  for (let i = 0; i < DATA.length; i++) st[i] = document.getElementById("cb" + i).checked;
+  localStorage.setItem("heyan", JSON.stringify(st));
+  alert("已保存！已勾选 " + Object.values(st).filter(Boolean).length + " / " + DATA.length + " 家");
+}
+</script>
+</body>
+</html>

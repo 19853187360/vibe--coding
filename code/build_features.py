@@ -46,8 +46,9 @@ if len(sys.argv) >= 3:
     bal, pro, cas = sheet(code, "balance"), sheet(code, "profit"), sheet(code, "cashflow")
     ta = g(bal, "TOTAL_ASSETS", y); tcl = g(bal, "TOTAL_CURRENT_LIAB", y)
     tca = g(bal, "TOTAL_CURRENT_ASSETS", y)
-    re_ = g(bal, "SURPLUS_RESERVE", y) + g(bal, "UNDISTRIBUTE_PROFIT", y)
-    ebit = g(pro, "OPERATE_PROFIT", y) + g(pro, "INTEREST_EXPENSE", y)
+    re_ = g(bal, "SURPLUS_RESERVE", y) + first(bal, y, ["UNASSIGN_RPOFIT", "UNDISTRIBUTE_PROFIT"])
+    interest = first(pro, y, ["FE_INTEREST_EXPENSE", "INTEREST_EXPENSE", "FINANCE_EXPENSE"])
+    ebit = g(pro, "OPERATE_PROFIT", y) + (0.0 if pd.isna(interest) else interest)  # 利息费用缺失时以财务费用近似, 论文注明
     tl, te = g(bal, "TOTAL_LIABILITIES", y), g(bal, "TOTAL_EQUITY", y)
     x1, x2, x3, x4 = ratio(tca - tcl, ta), ratio(re_, ta), ratio(ebit, ta), ratio(te, tl)
     print(f"{code} {y}年: X1={x1:.4f} X2={x2:.4f} X3={x3:.4f} X4={x4:.4f}")
@@ -67,8 +68,9 @@ for _, r in sample.iterrows():
     ta   = g(bal, "TOTAL_ASSETS", y)
     ta_p = g(bal, "TOTAL_ASSETS", y - 1)
     tca, tcl = g(bal, "TOTAL_CURRENT_ASSETS", y), g(bal, "TOTAL_CURRENT_LIAB", y)
-    re_ = g(bal, "SURPLUS_RESERVE", y) + g(bal, "UNDISTRIBUTE_PROFIT", y)
-    ebit = g(pro, "OPERATE_PROFIT", y) + g(pro, "INTEREST_EXPENSE", y)
+    re_ = g(bal, "SURPLUS_RESERVE", y) + first(bal, y, ["UNASSIGN_RPOFIT", "UNDISTRIBUTE_PROFIT"])
+    interest = first(pro, y, ["FE_INTEREST_EXPENSE", "INTEREST_EXPENSE", "FINANCE_EXPENSE"])
+    ebit = g(pro, "OPERATE_PROFIT", y) + (0.0 if pd.isna(interest) else interest)  # 利息费用缺失时以财务费用近似, 论文注明
     tl, te = g(bal, "TOTAL_LIABILITIES", y), g(bal, "TOTAL_EQUITY", y)
     tl_p, te_p = g(bal, "TOTAL_LIABILITIES", y-1), g(bal, "TOTAL_EQUITY", y-1)
     # ---- Z'' (Altman 1983 新兴市场版; 系数以 lit_check 核对原文为准) ----
@@ -85,8 +87,8 @@ for _, r in sample.iterrows():
     ca_fa_p = g(bal, "TOTAL_CURRENT_ASSETS", y-1) + g(bal, "FIXED_ASSET", y-1)
     aqi  = ratio(ratio(ta - ca_fa_t, ta), ratio(ta_p - ca_fa_p, ta_p))  # 资产质量指数
     sgi  = ratio(rv_t, rv_p)                                    # 销售增长指数
-    dep_t = first(cas, y,   ["DEPR_FIXED_ASSET", "FIXED_ASSETS_DEPR", "DEPRECIATION", "DEPR_OCFA"])
-    dep_p = first(cas, y-1, ["DEPR_FIXED_ASSET", "FIXED_ASSETS_DEPR", "DEPRECIATION", "DEPR_OCFA"])
+    dep_t = first(cas, y,   ["FA_IR_DEPR", "DEPR_FIXED_ASSET", "FIXED_ASSETS_DEPR", "DEPRECIATION"])
+    dep_p = first(cas, y-1, ["FA_IR_DEPR", "DEPR_FIXED_ASSET", "FIXED_ASSETS_DEPR", "DEPRECIATION"])
     fa_t, fa_p = g(bal, "FIXED_ASSET", y), g(bal, "FIXED_ASSET", y - 1)
     depr_t = ratio(dep_t, dep_t + fa_t); depr_p = ratio(dep_p, dep_p + fa_p)
     depi  = ratio(depr_p, depr_t)                               # 折旧指数
@@ -109,7 +111,7 @@ for _, r in sample.iterrows():
         inv_ratio=ratio(g(bal, "INVENTORY", y), ta),            # 红旗2
         gm_t=gm_t,                                              # (gm_gap 全表算完再减行业中位)
         ocf_np=ratio(ocf, npf),                                 # 红旗4
-        other_rec=ratio(g(bal, "OTHER_RECEIVABLES", y), ta),    # 红旗5
+        other_rec=ratio(first(bal, y, ["OTHER_RECE", "TOTAL_OTHER_RECE", "OTHER_RECEIVABLES"]), ta),    # 红旗5
         fa_turn_chg=ratio(ratio(rv_t, fa_t), ratio(rv_p, fa_p)),# 红旗6 固定资产周转率变化
         ta_turn_chg=ratio(ratio(rv_t, ta), ratio(rv_p, ta_p)),  # 红旗7 总资产周转率变化(替代员工数)
         cip_ratio=ratio(g(bal, "CIP", y), ta),                  # 红旗8

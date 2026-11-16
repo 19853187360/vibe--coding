@@ -36,3 +36,7 @@ fraud(标签) · z_prime2 · m_score · dsri/gmi/aqi/sgi/depi/sgai/tata/lvgi(M�
 - 全流程未使用任何股价、市值、交易数据（仅财务报表类接口）
 - 结论为"识别增益"（审计辅助含义），不构成投资建议
 - 参考文献逐条人工核验（lit_check.xlsx）；Agent 使用日志全程留痕
+
+## 赛事最新指示（2026-11-16 晚）
+- 不答辩、不做 PPT，评分只看论文质量 + 全部数据材料
+- 因此 PPT 从交付清单移除；论文质量与 Research Package 完整性为最高优先级
