@@ -40,6 +40,10 @@ def ratio(x, y):
     except Exception:
         return np.nan
 
+def gz(df, col, year):   # 资产负债表科目为空 = 该科目为0(如无商誉/无在建工程)
+    v = g(df, col, year)
+    return 0.0 if pd.isna(v) else v
+
 # 单家手算核对模式: py -3.14 code\build_features.py 600518 2016
 if len(sys.argv) >= 3:
     code, y = sys.argv[1], int(sys.argv[2])
@@ -108,14 +112,14 @@ for _, r in sample.iterrows():
         z_prime2=z2, m_score=m,
         dsri=dsri, gmi=gmi, aqi=aqi, sgi=sgi, depi=depi, sgai=sgai, tata=tata, lvgi=lvgi,
         rec_gap=rec_gap,                                        # 红旗1
-        inv_ratio=ratio(g(bal, "INVENTORY", y), ta),            # 红旗2
+        inv_ratio=ratio(gz(bal, "INVENTORY", y), ta),           # 红旗2
         gm_t=gm_t,                                              # (gm_gap 全表算完再减行业中位)
         ocf_np=ratio(ocf, npf),                                 # 红旗4
         other_rec=ratio(first(bal, y, ["OTHER_RECE", "TOTAL_OTHER_RECE", "OTHER_RECEIVABLES"]), ta),    # 红旗5
-        fa_turn_chg=ratio(ratio(rv_t, fa_t), ratio(rv_p, fa_p)),# 红旗6 固定资产周转率变化
+        fa_turn_chg=ratio(ratio(rv_t, gz(bal, "FIXED_ASSET", y)), ratio(rv_p, gz(bal, "FIXED_ASSET", y-1))),  # 红旗6
         ta_turn_chg=ratio(ratio(rv_t, ta), ratio(rv_p, ta_p)),  # 红旗7 总资产周转率变化(替代员工数)
-        cip_ratio=ratio(g(bal, "CIP", y), ta),                  # 红旗8
-        goodwill_ne=ratio(g(bal, "GOODWILL", y), te),           # 红旗14
+        cip_ratio=ratio(gz(bal, "CIP", y), ta),                 # 红旗8
+        goodwill_ne=ratio(gz(bal, "GOODWILL", y), te),          # 红旗14
         subsidy_pt=ratio(first(pro, y, ["SUBSIDIZE_INCOME", "SUBSIDY_INCOME", "OTHER_INCOME"]),
                          g(pro, "TOTAL_PROFIT", y)),            # 红旗15
     ))
@@ -129,16 +133,20 @@ for _, r in sample.iterrows():
     code, y = str(r.code).zfill(6), int(r.year_t)
     bal = sheet(code, "balance")
     ta_ = g(bal, "TOTAL_ASSETS", y)
-    feats.loc[feats.code.eq(code) & feats.year_t.eq(y), "cash_ta"] = ratio(g(bal, "MONETARYFUNDS", y), ta_)
-    feats.loc[feats.code.eq(code) & feats.year_t.eq(y), "loan_ta"] = ratio(g(bal, "SHORT_LOAN", y), ta_)
+    feats.loc[feats.code.eq(code) & feats.year_t.eq(y), "cash_ta"] = ratio(gz(bal, "MONETARYFUNDS", y), ta_)
+    feats.loc[feats.code.eq(code) & feats.year_t.eq(y), "loan_ta"] = ratio(gz(bal, "SHORT_LOAN", y), ta_)
 for ind in feats.industry_l1.unique():
     m = feats.industry_l1.eq(ind)
     mh_c = feats.loc[m, "cash_ta"].median(); mh_l = feats.loc[m, "loan_ta"].median()
     feats.loc[m, "double_high"] = ((feats.loc[m, "cash_ta"] > mh_c) & (feats.loc[m, "loan_ta"] > mh_l)).astype(int)
 feats = feats.drop(columns=["cash_hi"])
 
-if events is not None:
+if events is not None and len(events) > 0 and events["code"].notna().any():
+    events["code"] = events["code"].astype(str).str.replace(".0", "", regex=False).str.zfill(6)
     feats = feats.merge(events, on=["code", "year_t"], how="left")
+else:
+    for c in ["qualified_op", "auditor_chg", "exec_depart", "related_pct"]:
+        feats[c] = pd.NA
 feats.to_csv("data/tables/fin_features.csv", index=False, encoding="utf-8-sig")
 print(feats.isna().mean().round(3).sort_values(ascending=False).head(10))
 print("行数:", len(feats))
