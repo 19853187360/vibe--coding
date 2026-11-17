@@ -16,27 +16,26 @@ def classify(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
         pages = [p.extract_text() or "" for p in pdf.pages]
     full = "".join(pages)
-    # 优先看审计报告节(通常带"审计报告"标题的那几页)
+    # 优先看审计报告节(通常带"审计报告"标题的那几页, 至"财务报表"标题为止)
     ar_text = ""
     for i, t in enumerate(pages):
         if "审计报告" in t[:300]:
             ar_text += t
-            for j in range(i + 1, min(i + 6, len(pages))):
-                if "财务报表" in pages[j][:200] or j > i + 4:
-                    break
+            for j in range(i + 1, min(i + 8, len(pages))):
                 ar_text += pages[j]
+                if "财务报表" in pages[j][:200]:
+                    break
+            break
     scope = ar_text if len(ar_text) > 200 else full
-    hits = []
-    for kw in BAD_KWS:
-        if kw in scope:
-            hits.append(kw)
-    # 排除"标准无保留意见"被"保留意见"误命中
-    good = "标准无保留意见" in scope or "无保留意见" in scope
-    if hits and not (good and all(h in ("保留意见",) and "无保留意见" in scope)):
+    hits = [kw for kw in BAD_KWS if kw in scope]
+    if "无保留意见" in scope and "保留意见" in hits:
+        hits.remove("保留意见")     # "无保留意见"中的子串误命中
+    if hits:
         return 1, "+".join(hits)
-    if good:
+    # 无非标关键词: 标准审计报告通常不含"无保留"字样, 记佐证或默认
+    if "标准无保留意见" in full or "无保留意见" in full:
         return 0, "标准无保留"
-    return None, "未识别"
+    return 0, "无非标关键词(默认标准)"
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")

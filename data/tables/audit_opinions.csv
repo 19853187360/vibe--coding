@@ -1,0 +1,108 @@
+﻿code,year_t,qualified_op,note
+000521,2016,,"ERR NameError(""name 'h' is not defined"")"
+000523,2017,,"ERR NameError(""name 'h' is not defined"")"
+000523,2018,,"ERR NameError(""name 'h' is not defined"")"
+000670,2014,,"ERR NameError(""name 'h' is not defined"")"
+000670,2015,1.0,否定意见
+002007,2017,,"ERR NameError(""name 'h' is not defined"")"
+002032,2016,,"ERR NameError(""name 'h' is not defined"")"
+002035,2014,,未识别
+002035,2015,,未识别
+002035,2016,,"ERR NameError(""name 'h' is not defined"")"
+002035,2018,,"ERR NameError(""name 'h' is not defined"")"
+002041,2016,,"ERR NameError(""name 'h' is not defined"")"
+002052,2013,,未识别
+002052,2014,,未识别
+002069,2015,,"ERR NameError(""name 'h' is not defined"")"
+002069,2016,,"ERR NameError(""name 'h' is not defined"")"
+002164,2016,,"ERR NameError(""name 'h' is not defined"")"
+002164,2017,,"ERR NameError(""name 'h' is not defined"")"
+002341,2015,,未识别
+002341,2016,,"ERR NameError(""name 'h' is not defined"")"
+002370,2015,,未识别
+002370,2016,,"ERR NameError(""name 'h' is not defined"")"
+002384,2016,,"ERR NameError(""name 'h' is not defined"")"
+002411,2014,,未识别
+002411,2015,,未识别
+002415,2016,,"ERR NameError(""name 'h' is not defined"")"
+002426,2015,,未识别
+002426,2016,,"ERR NameError(""name 'h' is not defined"")"
+002450,2014,,未识别
+002450,2015,,"ERR NameError(""name 'h' is not defined"")"
+002458,2021,,"ERR NameError(""name 'h' is not defined"")"
+002470,2014,,未识别
+002470,2015,,未识别
+002508,2015,,"ERR NameError(""name 'h' is not defined"")"
+002511,2017,,"ERR NameError(""name 'h' is not defined"")"
+002584,2019,,"ERR NameError(""name 'h' is not defined"")"
+002584,2020,,"ERR NameError(""name 'h' is not defined"")"
+002604,2014,,未识别
+002604,2015,,未识别
+002697,2016,,"ERR NameError(""name 'h' is not defined"")"
+002705,2015,,未识别
+002746,2021,,"ERR NameError(""name 'h' is not defined"")"
+002766,2015,,未识别
+002766,2016,,"ERR NameError(""name 'h' is not defined"")"
+002916,2017,,"ERR NameError(""name 'h' is not defined"")"
+300033,2019,,"ERR NameError(""name 'h' is not defined"")"
+300064,2015,,未识别
+300064,2016,,"ERR NameError(""name 'h' is not defined"")"
+300091,2016,,"ERR NameError(""name 'h' is not defined"")"
+300091,2017,,"ERR NameError(""name 'h' is not defined"")"
+300216,2014,,未识别
+300216,2015,,未识别
+300274,2014,,未识别
+300285,2015,,未识别
+300285,2016,,"ERR NameError(""name 'h' is not defined"")"
+300285,2017,,"ERR NameError(""name 'h' is not defined"")"
+300285,2020,,"ERR NameError(""name 'h' is not defined"")"
+300451,2015,,"ERR NameError(""name 'h' is not defined"")"
+300451,2016,,"ERR NameError(""name 'h' is not defined"")"
+300496,2015,,"ERR NameError(""name 'h' is not defined"")"
+300496,2020,,"ERR NameError(""name 'h' is not defined"")"
+600066,2010,,"ERR NameError(""name 'h' is not defined"")"
+600086,2015,,"ERR NameError(""name 'h' is not defined"")"
+600086,2016,,"ERR NameError(""name 'h' is not defined"")"
+600090,2015,,"ERR NameError(""name 'h' is not defined"")"
+600090,2016,,"ERR NameError(""name 'h' is not defined"")"
+600145,2017,,"ERR NameError(""name 'h' is not defined"")"
+600145,2018,1.0,保留意见+无法表示意见+无法获取充分
+600183,2015,,"ERR NameError(""name 'h' is not defined"")"
+600183,2016,,"ERR NameError(""name 'h' is not defined"")"
+600196,2016,,"ERR NameError(""name 'h' is not defined"")"
+600251,2020,,"ERR NameError(""name 'h' is not defined"")"
+600251,2021,,"ERR NameError(""name 'h' is not defined"")"
+600276,2015,,"ERR NameError(""name 'h' is not defined"")"
+600290,2016,,"ERR NameError(""name 'h' is not defined"")"
+600290,2017,,"ERR NameError(""name 'h' is not defined"")"
+600298,2018,,"ERR NameError(""name 'h' is not defined"")"
+600399,2009,,"ERR NameError(""name 'h' is not defined"")"
+600399,2010,,"ERR NameError(""name 'h' is not defined"")"
+600436,2017,,"ERR NameError(""name 'h' is not defined"")"
+600438,2010,,"ERR NameError(""name 'h' is not defined"")"
+600461,2017,,"ERR NameError(""name 'h' is not defined"")"
+600518,2015,,"ERR NameError(""name 'h' is not defined"")"
+600518,2016,,"ERR NameError(""name 'h' is not defined"")"
+600589,2017,,"ERR NameError(""name 'h' is not defined"")"
+600589,2018,,"ERR NameError(""name 'h' is not defined"")"
+600624,2018,,"ERR NameError(""name 'h' is not defined"")"
+600818,2018,,"ERR NameError(""name 'h' is not defined"")"
+600978,2015,,"ERR NameError(""name 'h' is not defined"")"
+600978,2016,,"ERR NameError(""name 'h' is not defined"")"
+601100,2016,,"ERR NameError(""name 'h' is not defined"")"
+601799,2016,,"ERR NameError(""name 'h' is not defined"")"
+603288,2016,,"ERR NameError(""name 'h' is not defined"")"
+603486,2020,,"ERR NameError(""name 'h' is not defined"")"
+603515,2016,,"ERR NameError(""name 'h' is not defined"")"
+603588,2017,,"ERR NameError(""name 'h' is not defined"")"
+603603,2016,,"ERR NameError(""name 'h' is not defined"")"
+603603,2017,,"ERR NameError(""name 'h' is not defined"")"
+603609,2016,,"ERR NameError(""name 'h' is not defined"")"
+603899,2015,,"ERR NameError(""name 'h' is not defined"")"
+603899,2016,,"ERR NameError(""name 'h' is not defined"")"
+603899,2018,,"ERR NameError(""name 'h' is not defined"")"
+603939,2016,,"ERR NameError(""name 'h' is not defined"")"
+688083,2020,,"ERR NameError(""name 'h' is not defined"")"
+688086,2019,,"ERR NameError(""name 'h' is not defined"")"
+688111,2019,,"ERR NameError(""name 'h' is not defined"")"
+688555,2020,,"ERR NameError(""name 'h' is not defined"")"
