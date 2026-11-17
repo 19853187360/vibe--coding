@@ -39,6 +39,7 @@ def download(code, year):
     if not hit:
         return "NOT_FOUND"
     atime, aid = hit
+    atime = atime[:10]   # 只取日期部分, 防止"2011-04-14 06:30:00"拼进URL导致404
     url = f"http://static.cninfo.com.cn/finalpage/{atime}/{aid}.PDF"
     out = f"pdfs/{str(code).zfill(6)}_{year}.pdf"
     if os.path.exists(out):

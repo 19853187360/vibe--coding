@@ -1,0 +1,58 @@
+# -*- coding: utf-8 -*-
+"""extract_audit_opinion.py  从年报PDF自动识别审计意见类型 → 填 events.xlsx 的 qualified_op
+qualified_op: 1=非标(保留/无法表示/否定/带强调事项段), 0=标准无保留
+识别方式: 在"审计报告"节附近搜索关键词; 无审计报告节则全文本搜索。
+人工抽查: 抽10%对照审计报告原文(红线要求)。
+"""
+import os, re, sys
+import glob
+import pandas as pd
+import pdfplumber
+
+BAD_KWS = ["保留意见", "无法表示意见", "否定意见", "带强调事项", "带持续经营", "重大不确定性", "无法获取充分"]
+GOOD_KWS = ["标准无保留意见", "无保留意见"]
+
+def classify(pdf_path):
+    with pdfplumber.open(pdf_path) as pdf:
+        pages = [p.extract_text() or "" for p in pdf.pages]
+    full = "".join(pages)
+    # 优先看审计报告节(通常带"审计报告"标题的那几页)
+    ar_text = ""
+    for i, t in enumerate(pages):
+        if "审计报告" in t[:300]:
+            ar_text += t
+            for j in range(i + 1, min(i + 6, len(pages))):
+                if "财务报表" in pages[j][:200] or j > i + 4:
+                    break
+                ar_text += pages[j]
+    scope = ar_text if len(ar_text) > 200 else full
+    hits = []
+    for kw in BAD_KWS:
+        if kw in scope:
+            hits.append(kw)
+    # 排除"标准无保留意见"被"保留意见"误命中
+    good = "标准无保留意见" in scope or "无保留意见" in scope
+    if hits and not (good and all(h in ("保留意见",) and "无保留意见" in scope)):
+        return 1, "+".join(hits)
+    if good:
+        return 0, "标准无保留"
+    return None, "未识别"
+
+if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")
+    files = sorted(glob.glob("pdfs/*_*.pdf"))
+    rows, miss = [], []
+    for f in files:
+        fid = os.path.basename(f)[:-4]           # 600518_2016
+        code, year = fid.split("_")
+        try:
+            op, kw = classify(f)
+        except Exception as e:
+            op, kw = None, f"ERR {repr(e)[:40]}"
+        rows.append(dict(code=code, year_t=int(year), qualified_op=op, note=kw))
+        if op is None:
+            miss.append(fid)
+    df = pd.DataFrame(rows)
+    df.to_csv("data/tables/audit_opinions.csv", index=False, encoding="utf-8-sig")
+    print(df.groupby("qualified_op").size().to_dict())
+    print("未识别:", miss if miss else "无")

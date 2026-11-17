@@ -9,15 +9,20 @@ import pandas as pd
 
 # ---------- sample_a ----------
 DROP = {"000892"}   # 欢瑞世纪: 2013-2015年仍是借壳前壳公司(总资产<600万), 报表无分析意义, 剔除
+# 上市前造假的公司: 造假起始年无公开年报 → 改用"首个含造假的公开年报年度"(论文数据节注明)
+YEAR_OVERRIDE = {"688555": 2020,   # 泽达易盛: 2020年IPO, 2020年报虚增收入1.52亿(处罚认定)
+                 "688086": 2019}   # 紫晶存储: 2020年IPO, 2019年报虚增收入2.71亿(处罚认定)
 wb = openpyxl.load_workbook("data/tables/group_a_v0.xlsx")
 ws = wb["group_a_v0"]
 rows = []
 for r in ws.iter_rows(min_row=2, values_only=True):
     if r[8] == "已核证(检索)" and r[5]:
-        if str(r[1]).zfill(6) in DROP:
+        code6 = str(r[1]).zfill(6)
+        if code6 in DROP:
             continue
-        rows.append(dict(code=str(r[1]).zfill(6), company=r[0], industry_l1=r[2],
-                         year_t=int(str(r[5])[:4]), fraud=1,
+        year = YEAR_OVERRIDE.get(code6, int(str(r[5])[:4]))
+        rows.append(dict(code=code6, company=r[0], industry_l1=r[2],
+                         year_t=year, fraud=1,
                          penalty_date=r[3], fraud_years=r[4], method=r[6], source_url=r[7]))
 a = pd.DataFrame(rows)
 a.to_csv("data/tables/sample_a.csv", index=False, encoding="utf-8-sig")
