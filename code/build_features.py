@@ -44,9 +44,9 @@ def gz(df, col, year):   # 资产负债表科目为空 = 该科目为0(如无商
     v = g(df, col, year)
     return 0.0 if pd.isna(v) else v
 
-# 单家手算核对模式: py -3.14 code\build_features.py 600518 2016
-if len(sys.argv) >= 3:
-    code, y = sys.argv[1], int(sys.argv[2])
+# 单家手算核对模式: py -3.14 code\build_features.py --check 600518 2016
+if len(sys.argv) >= 4 and sys.argv[1] == "--check":
+    code, y = sys.argv[2], int(sys.argv[3])
     bal, pro, cas = sheet(code, "balance"), sheet(code, "profit"), sheet(code, "cashflow")
     ta = g(bal, "TOTAL_ASSETS", y); tcl = g(bal, "TOTAL_CURRENT_LIAB", y)
     tca = g(bal, "TOTAL_CURRENT_ASSETS", y)
@@ -59,7 +59,12 @@ if len(sys.argv) >= 3:
     print(f"Z'' = 6.56*{x1:.4f} + 3.26*{x2:.4f} + 6.72*{x3:.4f} + 1.05*{x4:.4f} = {6.56*x1+3.26*x2+6.72*x3+1.05*x4:.4f}")
     sys.exit(0)
 
-sample = pd.read_csv("data/tables/sample_all.csv")
+# 可选参数: 输入样本表 / 输出特征表(前置检验用 sample_prev → fin_features_prev)
+if len(sys.argv) >= 3 and sys.argv[1] != "--check":
+    in_sample, out_feats = sys.argv[1], sys.argv[2]
+else:
+    in_sample, out_feats = "data/tables/sample_all.csv", "data/tables/fin_features.csv"
+sample = pd.read_csv(in_sample)
 events = None
 if os.path.exists("data/tables/events.xlsx"):
     events = pd.read_excel("data/tables/events.xlsx")     # D3手工记, 模板见附录C
@@ -147,6 +152,6 @@ if events is not None and len(events) > 0 and events["code"].notna().any():
 else:
     for c in ["qualified_op", "auditor_chg", "exec_depart", "related_pct"]:
         feats[c] = pd.NA
-feats.to_csv("data/tables/fin_features.csv", index=False, encoding="utf-8-sig")
+feats.to_csv(out_feats, index=False, encoding="utf-8-sig")
 print(feats.isna().mean().round(3).sort_values(ascending=False).head(10))
 print("行数:", len(feats))
