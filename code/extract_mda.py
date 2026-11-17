@@ -20,7 +20,7 @@ def clean(s):
 def window(pages, start_i):
     end_i = None
     for j in range(start_i + 1, len(pages)):
-        head = pages[j][:300]
+        head = re.sub(r"\s+", "", pages[j][:300])
         if any(k in head for k in END_KWS):
             end_i = j; break
     end_i = end_i or min(start_i + 25, len(pages))
@@ -28,7 +28,7 @@ def window(pages, start_i):
 
 def plausible(text):
     """开头必须是MD&A正文特征, 不能是重要提示/目录"""
-    head = text[:400]
+    head = re.sub(r"\s+", "", text[:400])
     if any(b in head[:80] for b in BAD_HEADS):
         return False
     return any(k in head for k in START_KWS + FALLBACK_KWS + BUSI_MARKERS)
@@ -38,23 +38,28 @@ def extract(pdf_path):
         pages = [p.extract_text() or "" for p in pdf.pages]
     cands = []          # (优先级, 页码)
     for i, t in enumerate(pages):
-        if re.search(r"目\s*录", t[:300]):
+        tn = re.sub(r"\s+", "", t)        # 去空白再匹配: 防止标题被换行拆开
+        head = tn[:300]
+        if re.search(r"目\s*录", head):
             continue
-        if any(k in t[:300] for k in START_KWS):
+        if any(k in head for k in START_KWS):
             cands.append((0, i))          # 标题在页首
-        elif any(k in t for k in START_KWS):
+        elif any(k in tn for k in START_KWS):
             cands.append((1, i))          # 标题在页中(可能为封面小目录)
-        elif any(k in t[:300] for k in FALLBACK_KWS):
+        elif any(k in head for k in FALLBACK_KWS):
             cands.append((2, i))          # 老式年报: 公司业务概要
     for _, i in sorted(cands):
         text = window(pages, i)
         if len(text) > 1500 and plausible(text):
             return text[:8000]
-    for _, i in sorted(cands):            # 兜底: 最长窗口
+    best = ""
+    for _, i in sorted(cands):            # 兜底: 取最长的"非重要提示/目录"窗口
         text = window(pages, i)
-        if len(text) > 1500:
-            return text[:8000]
-    return None
+        if len(text) > len(best) and len(text) > 1500:
+            head = re.sub(r"\s+", "", text[:80])
+            if not any(b in head for b in BAD_HEADS):
+                best = text
+    return best[:8000] if best else None
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
