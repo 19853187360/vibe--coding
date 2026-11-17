@@ -12,7 +12,8 @@ FIN = ["z_prime2", "m_score", "dsri", "gmi", "aqi", "sgi", "depi", "sgai", "tata
 TXT = ["optimism", "risk", "vague", "mda_sim"]
 
 df = pd.read_csv("data/tables/dataset.csv").dropna(subset=["z_prime2", "optimism"])
-tr = df[df.year_t <= 2021]; te = df[df.year_t >= 2022]
+# 样本年度分布2010-2021(A组), 测试期取>=2017(7家A+14家B)防止未来信息泄漏
+tr = df[df.year_t <= 2016]; te = df[df.year_t >= 2017]
 for name, cols in [("基线(仅财务)", FIN), ("改进(财务+文本)", FIN + TXT)]:
     m = LGBMClassifier(n_estimators=300, learning_rate=0.05,
                        class_weight="balanced", verbosity=-1)
