@@ -19,13 +19,14 @@ FIN = ["z_prime2", "m_score", "dsri", "gmi", "aqi", "sgi", "depi", "sgai", "tata
        "goodwill_ne", "ta_turn_chg", "fa_turn_chg", "subsidy_pt", "double_high",
        "qualified_op", "auditor_chg", "exec_depart", "related_pct"]
 TXT = ["optimism", "risk", "vague", "mda_sim"]
-tr = df[df.year_t <= 2021]; te = df[df.year_t >= 2022]
+tr = df[df.year_t <= 2016]; te = df[df.year_t >= 2017]
 
 fig, ax = plt.subplots(figsize=(6, 6), dpi=300)
 for name, cols, model in [
-    ("基线(仅财务)", FIN, LogisticRegression(class_weight="balanced", max_iter=2000)),
-    ("改进(财务+文本)", FIN + TXT, LGBMClassifier(n_estimators=300, learning_rate=0.05,
-                                                  class_weight="balanced", verbosity=-1))]:
+    ("基线(仅财务)", FIN, LGBMClassifier(n_estimators=100, learning_rate=0.05,
+                                         class_weight="balanced", verbosity=-1, random_state=42)),
+    ("改进(财务+文本)", FIN + TXT, LGBMClassifier(n_estimators=100, learning_rate=0.05,
+                                                  class_weight="balanced", verbosity=-1, random_state=42))]:
     model.fit(tr[cols].fillna(-999), tr["fraud"])
     p = model.predict_proba(te[cols].fillna(-999))[:, 1]
     fpr, tpr, _ = roc_curve(te["fraud"], p)
