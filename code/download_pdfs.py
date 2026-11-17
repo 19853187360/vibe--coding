@@ -25,8 +25,8 @@ def find_annual_report(code, year):
         return None
     for _, r in df.iterrows():
         t = str(r["公告标题"])
-        # 要"年度报告"正文: 排除摘要/英文版/更正/取消
-        if "摘要" in t or "英文" in t or "更正" in t or "取消" in t:
+        # 要"年度报告"正文: 排除摘要/英文版/更正后版本(保留"已取消"=造假原版, PDF仍可下载)
+        if "摘要" in t or "英文" in t or "更正" in t or "更新后" in t:
             continue
         if re.search(rf"{year}\s*年\s*年\s*度\s*报告", t) or t.strip() == f"{year}年年度报告":
             m = re.search(r"announcementId=(\d+)", str(r["公告链接"]))
