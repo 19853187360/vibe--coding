@@ -16,9 +16,10 @@ from lightgbm import LGBMClassifier
 from sklearn.linear_model import LogisticRegression
 FIN = ["z_prime2", "m_score", "dsri", "gmi", "aqi", "sgi", "depi", "sgai", "tata", "lvgi",
        "rec_gap", "inv_ratio", "gm_gap", "ocf_np", "other_rec", "cip_ratio",
-       "goodwill_ne", "ta_turn_chg", "fa_turn_chg", "subsidy_pt", "double_high",
-       "qualified_op", "auditor_chg", "exec_depart", "related_pct"]
+       "goodwill_ne", "ta_turn_chg", "fa_turn_chg", "subsidy_pt", "double_high", "qualified_op"]
 TXT = ["optimism", "risk", "vague", "mda_sim"]
+FIN = [c for c in FIN if c in df.columns]
+TXT = [c for c in TXT if c in df.columns]
 tr = df[df.year_t <= 2016]; te = df[df.year_t >= 2017]
 
 fig, ax = plt.subplots(figsize=(6, 6), dpi=300)

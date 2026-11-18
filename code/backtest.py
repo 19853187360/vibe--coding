@@ -7,9 +7,11 @@ from sklearn.metrics import roc_auc_score, recall_score, confusion_matrix
 
 FIN = ["z_prime2", "m_score", "dsri", "gmi", "aqi", "sgi", "depi", "sgai", "tata", "lvgi",
        "rec_gap", "inv_ratio", "gm_gap", "ocf_np", "other_rec", "cip_ratio",
-       "goodwill_ne", "ta_turn_chg", "fa_turn_chg", "subsidy_pt", "double_high",
-       "qualified_op", "auditor_chg", "exec_depart", "related_pct"]
+       "goodwill_ne", "ta_turn_chg", "fa_turn_chg", "subsidy_pt", "double_high", "qualified_op"]
 TXT = ["optimism", "risk", "vague", "mda_sim"]
+# 仅保留 dataset 中实际存在的列(事件红旗未采集者自动舍去)
+FIN = [c for c in FIN if c in pd.read_csv("data/tables/dataset.csv", nrows=1).columns]
+TXT = [c for c in TXT if c in pd.read_csv("data/tables/dataset.csv", nrows=1).columns]
 
 df = pd.read_csv("data/tables/dataset.csv").dropna(subset=["z_prime2", "optimism"])
 # 样本年度分布2010-2021(A组), 测试期取>=2017(7家A+14家B)防止未来信息泄漏
